@@ -7,6 +7,8 @@ from pathlib import Path
 import requests
 from dotenv import load_dotenv
 
+from agents import format_report
+
 load_dotenv()
 
 TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
@@ -36,6 +38,10 @@ def handle(update):
         return
     if text == "/status":
         telegram("sendMessage", chat_id=ADMIN_CHAT_ID, text="zaybafibocrypto-publisher aktif.")
+    elif text.startswith("/review "):
+        content = text[len("/review "):].strip()
+        if content:
+            telegram("sendMessage", chat_id=ADMIN_CHAT_ID, text=format_report(content))
     elif text.startswith("/publish "):
         content = text[len("/publish "):].strip()
         if content:
@@ -48,7 +54,7 @@ def handle(update):
         save_event(content, "signal")
         telegram("sendMessage", chat_id=ADMIN_CHAT_ID, text="Sinyal gönderildi.")
     elif text == "/help":
-        telegram("sendMessage", chat_id=ADMIN_CHAT_ID, text="Komutlar:\n/publish mesaj\n/signal sinyal metni\n/status")
+        telegram("sendMessage", chat_id=ADMIN_CHAT_ID, text="Komutlar:\n/publish mesaj\n/signal sinyal metni\n/review sinyal metni\n/status")
 
 
 def run():
@@ -58,7 +64,7 @@ def run():
         try:
             result = requests.get(
                 f"{API}/getUpdates",
-                params={"offset": offset, "timeout": 20, "allowed_updates": '["message"]'},
+                params={"offset": offset, "timeout": 20, "allowed_updates": '[\"message\"]'},
                 timeout=30,
             ).json()
             for update in result.get("result", []):
