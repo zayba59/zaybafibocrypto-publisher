@@ -1,25 +1,36 @@
 # zaybafibocrypto-publisher
-Telegram’da yalnızca sizin admin hesabınızdan gelen paylaşımları hedef kanala/gruba gönderen bağımsız yayın botu ve ana ekran.
-## Kurulum
+
+Telegram’da yalnızca sizin admin hesabınızdan gelen paylaşımları hedef kanala/gruba gönderen bağımsız yayın botu ve 20 kontrollü inceleme ajanından oluşan ana yayın sistemi.
+
+## Windows kurulumu
+
 ```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
-Copy-Item .env.example .env
+cd "$env:USERPROFILE\Desktop"
+git clone https://github.com/zayba59/zaybafibocrypto-publisher.git
+cd zaybafibocrypto-publisher
+powershell -ExecutionPolicy Bypass -File .\kurulum.ps1
 ```
-`.env` içine şunları yazın:
+
+`.env` dosyasına BotFather tokenı, sizin Telegram chat ID’niz ve hedef kanal ID’sini yazın:
+
 - `TELEGRAM_BOT_TOKEN`: BotFather tokenı
 - `TELEGRAM_ADMIN_CHAT_ID`: yalnızca sizin Telegram chat ID’niz
 - `TELEGRAM_TARGET_CHAT_ID`: yayınların gideceği kanal/grup ID’si
-İki terminalde çalıştırın:
+
+Başlatmak için:
+
 ```powershell
-python src\publisher.py
-python src\dashboard.py
+.\baslat.ps1
 ```
+
 Ana ekran: `http://127.0.0.1:8081`
-Telegram komutları:
+
+## Telegram komutları
+
 - `/publish BTCUSDT için takip mesajı`
 - `/signal 0.618 seviyesi: 65000, kapanış bekleniyor`
+- `/review BTCUSDT fiyat 65000 RSI 55 stop 64000`
 - `/status`
 - `/help`
-Admin chat ID dışındaki tüm kullanıcılar yok sayılır. Bot emir açmaz ve Binance hesabına erişmez; mevcut sinyal botundan bağımsızdır. GitHub’a yüklendikten sonra başka bilgisayarda `git clone`, güncellemede `git pull` kullanılabilir.
+
+`/review` komutu 20 alt kontrolü çalıştırır ve eksik alanları `needs_data` olarak raporlar. Bu ajanlar emir açmaz, Binance hesabına erişmez ve otomatik yatırım kararı vermez. Yayın yetkisi yalnızca `TELEGRAM_ADMIN_CHAT_ID` ile eşleşen hesaptadır. Mevcut çalışan sinyal botundan bağımsızdır.
