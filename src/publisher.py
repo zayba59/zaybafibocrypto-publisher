@@ -1,6 +1,7 @@
 import json
 import os
 import time
+from threading import Thread
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -8,6 +9,7 @@ import requests
 from dotenv import load_dotenv
 
 from agents import format_report
+from scanner import run as run_scanner
 
 load_dotenv()
 
@@ -49,16 +51,22 @@ def handle(update):
             save_event(content, "publish")
             telegram("sendMessage", chat_id=ADMIN_CHAT_ID, text="Paylaşım gönderildi.")
     elif text.startswith("/signal "):
-        content = "📊 Fibonacci sinyali\n" + text[len("/signal "):].strip()
+        content = "📊 Fibonacci sinyali
+" + text[len("/signal "):].strip()
         telegram("sendMessage", chat_id=TARGET_CHAT_ID, text=content)
         save_event(content, "signal")
         telegram("sendMessage", chat_id=ADMIN_CHAT_ID, text="Sinyal gönderildi.")
     elif text == "/help":
-        telegram("sendMessage", chat_id=ADMIN_CHAT_ID, text="Komutlar:\n/publish mesaj\n/signal sinyal metni\n/review sinyal metni\n/status")
+        telegram("sendMessage", chat_id=ADMIN_CHAT_ID, text="Komutlar:
+/publish mesaj
+/signal sinyal metni
+/review sinyal metni
+/status")
 
 
 def run():
     offset = 0
+    Thread(target=run_scanner, args=(lambda message: telegram("sendMessage", chat_id=TARGET_CHAT_ID, text=message),), daemon=True).start()
     print("Publisher aktif; yalnızca admin chat ID kabul edilir.")
     while True:
         try:
